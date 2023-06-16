@@ -27,6 +27,36 @@ Le web scrapping peut s'avérer utile dans la mésure ou elle te laisse la main 
 Néanmoins, ce n'est pas tous les sites qui autorise cette méthode dans leur services. Il faut donc prendre en considération les législation et l'éthique des données et des sites web.
 
 Github n'autorise pas l'éxtraction des données dépuis sa plateforme
-<img src='me_ln_profile.jfif' alt="Image de github montrant sa restriction sur les données">
+![Image de github montrant sa restriction sur les données](Public/github_web_licence.png)
+
 
 Lors de la collecte je me suis basé sur le nombre d'étoiles comme critères de sélection mais cela me récupère bien sur toutes les autres informations associés au dépots.
+
+### Plan Equipe
+Savoir comment chacun avance est très important dans la mésure où ça aide à mieux intéragir et résoudre des problème en équipe.
+Comprendre les méthodes et suggestion de chacun pour filtrer la solution éfficiente.
+
+## Exécution
+J'ai utilisé une structure assez répandu qui est le MVC (Model View Controller). Cette structure aide à mieux organiser le code et à partager les différentes taches de façon logique et coordonnée.
+
+### Src
+Ce dossier correspond au coeur du projet. Il contient le model ainsi que le controleur.
+#### Model
+Dedans, on trouve une fonction qui fait la connexion et la récolte des données dépuis l'API REST de Github en se basant sur la recherche de dépots. La fonction retourne une liste contenant les informations récueillies
+#### Controleur
+Il contient deux fonctions : 
+ - Une qui fait appel au model pour récuperer les données en spécifiant la requette
+ - Une autre qui supprime les données répetées et stock les informations dans un fichier csv
+
+### Config
+Ce dossier contient deux fichiers à savoir conf.py et helpers.py
+#### conf.py 
+Ce fichier contient des constantes de configuration tels que l'url de recherche
+#### helpers.py 
+Contient des fonctions qui aide le controleur pour quelques taches
+
+### Public
+Ce dossier contenant un sous dossier Images qui contient les images nécessaires
+
+### main.py
+C'est le point d'entrée de notre projet. Il joue le role du routeur, Il se charge d'appeler le bon controleur quand il le faut.
