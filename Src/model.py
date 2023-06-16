@@ -1,5 +1,4 @@
 # Import necessary python packages
-import pandas as pd
 import requests
 
 # Import config
