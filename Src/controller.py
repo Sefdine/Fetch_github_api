@@ -8,26 +8,32 @@ from Config.helpers import *
 
 # Fetch data 
 def fetch_data():
+    print('Chargement...')
     query = 'stars:>0'
     res = get_github_repositories(query)
     data = res['data']
     final_data = data
 
     if data and len(data)>0:
-        print('La taille est de :', len(final_data))
+        display_data_size(final_data)
+        continue_res = continue_fetching_data_from_api()
 
-        while data[-1]['stargazers_count'] > 10:
+        while data[-1]['stargazers_count'] > 10 and continue_res == '1':
+            print('Chargement...')
             time.sleep(60)
             query = f"stars:<{data[-1]['stargazers_count']}"
             res = get_github_repositories(query)
             data = res['data'] 
             if not data or len(data)<=0:
-                print('Data is ', data)
+                display_error_message_api()
                 break
             else:
                 final_data.extend(data)
-                print('La taille est de :', len(final_data))
-    print('Fin du processus')
+                display_data_size(final_data)
+            continue_res = continue_fetching_data_from_api()
+    else:
+        display_error_message_api()
+    print('\nFin du processus')
     return final_data
 
 # Clean and save data
@@ -39,19 +45,6 @@ def clean_data(data):
     # Drop unnamed column
     if 'Unnamed: 0' in df.columns:
         df.drop('Unnamed: 0', axis=1, inplace=True)
-
-    # Drop duplicates
-    duplicated_rows = df[df.duplicated].shape[0]
-    if duplicated_rows > 0:
-        print(f"\nVous avez {duplicated_rows} lignes dupliquées. \nVoulez vous les supprimées ?")
-        duplicated_res = input('Taper 1 pour Oui, 0 pour non : ')
-        duplicated_res = handle_answer(duplicated_res)
-        
-        if duplicated_res == '1':
-            df.drop_duplicates(inplace=True)
-            print('\nLes données dupliquées ont été suprimés')
-            print('La taille de vos données sont de ',df.shape[0])
-            time.sleep(1)
     
     # Display available columns
     print('\nVoici les colonnes de vos données')
@@ -84,6 +77,19 @@ def clean_data(data):
         conserved_columns = df.columns
     # Create final dataframe
     df_final = df[conserved_columns]
+
+    # Drop duplicates
+    duplicated_rows = df_final[df_final.duplicated].shape[0]
+    if duplicated_rows > 0:
+        print(f"\nVous avez {duplicated_rows} lignes dupliquées. \nVoulez vous les supprimées ?")
+        duplicated_res = input('Taper 1 pour Oui, 0 pour non : ')
+        duplicated_res = handle_answer(duplicated_res)
+        
+        if duplicated_res == '1':
+            df_final.drop_duplicates(inplace=True)
+            print('\nLes données dupliquées ont été suprimés')
+            print('La taille de vos données sont de ',df_final.shape[0])
+            time.sleep(1)
     
     print(f"\nLa taille de vos données est de {df_final.shape[0]} lignes et de {df_final.shape[1]} colonnes")
     print('Voulez vous sauvergarder vos données sous forme csv ?')

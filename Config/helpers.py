@@ -31,3 +31,19 @@ def handle_csv_create_file(answer):
         print('\nLe fichier github_repos.csv a bien été créer')
     else:
         print('Erreur : ',answer)
+
+# Display size of data
+def display_data_size(data):
+    print('La taille des données récuperer est de ',len(data))
+
+# Display error message github api
+def display_error_message_api():
+    print('Erreur: Nous sommes désolé mais l\'API de github subi de nombreuses demande.')
+    print('Veuillez réessayer ultérieurement')
+
+# Ask to continue fetching data from github api
+def continue_fetching_data_from_api():
+    print('\nVoulez vous continuer ?')
+    continue_res = input('Taper 1 pour oui 0 pour non : ')
+    continue_res = handle_answer(continue_res)
+    return continue_res

@@ -26,6 +26,7 @@ La plupart des services web fournissent des API pour aider à la collecte des do
 Le web scrapping peut s'avérer utile dans la mésure ou elle te laisse la main à la patte. C'est a dire que suivant la méthode que vous utilisé, vous pouvez cibler des informations particulières.
 Néanmoins, ce n'est pas tous les sites qui autorise cette méthode dans leur services. Il faut donc prendre en considération les législation et l'éthique des données et des sites web.
 
-Dans le cas de Github, il n'autorise pas l'éxtraction
+Github n'autorise pas l'éxtraction des données dépuis sa plateforme
+<img src='me_ln_profile.jfif' alt="Image de github montrant sa restriction sur les données">
 
 Lors de la collecte je me suis basé sur le nombre d'étoiles comme critères de sélection mais cela me récupère bien sur toutes les autres informations associés au dépots.

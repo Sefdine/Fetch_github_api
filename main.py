@@ -6,5 +6,6 @@ from Src.controller import *
 data = fetch_data()
 
 # Save data to csv file
-clean_data(data)
+if data:
+    clean_data(data)
 
