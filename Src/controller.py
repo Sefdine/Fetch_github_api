@@ -45,6 +45,19 @@ def clean_data(data):
     # Drop unnamed column
     if 'Unnamed: 0' in df.columns:
         df.drop('Unnamed: 0', axis=1, inplace=True)
+
+    # Display columns with list or dict dtype
+    object_columns = get_columns_name_type_dict_list(df)
+    if object_columns:
+        print('Ces colonnes de votre dataset contiennet des objets')
+        print(df[object_columns].head())
+        print('Voulez vous les supprimés ?')
+        # Ask to delete columns with object dict and list
+        dict_list_res = input('Taper 1 pour oui 0 pour non : ')
+        dict_list_res = handle_answer(dict_list_res)
+
+        if dict_list_res == '1':
+            df.drop(object_columns, axis=1, inplace=True)
     
     # Display available columns
     print('\nVoici les colonnes de vos données')
@@ -79,14 +92,16 @@ def clean_data(data):
     df_final = df[conserved_columns]
 
     # Drop duplicates
-    duplicated_rows = df_final[df_final.duplicated].shape[0]
+    object_columns = list(set(object_columns).intersection(df_final.columns))
+    duplicated_rows = df_final[df_final.duplicated(subset=df_final.columns.difference(object_columns))].shape[0]
+
     if duplicated_rows > 0:
         print(f"\nVous avez {duplicated_rows} lignes dupliquées. \nVoulez vous les supprimées ?")
         duplicated_res = input('Taper 1 pour Oui, 0 pour non : ')
         duplicated_res = handle_answer(duplicated_res)
         
         if duplicated_res == '1':
-            df_final.drop_duplicates(inplace=True)
+            df_final.drop_duplicates(subset=df_final.columns.difference(object_columns), inplace=True)
             print('\nLes données dupliquées ont été suprimés')
             print('La taille de vos données sont de ',df_final.shape[0])
             time.sleep(1)

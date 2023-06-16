@@ -47,3 +47,15 @@ def continue_fetching_data_from_api():
     continue_res = input('Taper 1 pour oui 0 pour non : ')
     continue_res = handle_answer(continue_res)
     return continue_res
+
+# Get columns name with dict or list dtypes
+def get_columns_name_type_dict_list(df):
+    # Get columns with object dtype
+    object_columns = df.select_dtypes(include='object').columns
+
+    # Create a list that will contain dict and list dtype
+    columns_with_objects = []
+    for column in object_columns:
+        if df[column].apply(lambda x: isinstance(x, (dict, list))).any():
+            columns_with_objects.append(column)
+    return columns_with_objects
