@@ -21,13 +21,13 @@ def concatenate_files(file1, file2, exportFile):
 
 # Answer 1 or 0
 def handle_answer(answer):
-    while answer != '1' or answer != '0':
+    while answer != '1' and answer != '0':
         answer = input('Veuillez choisir 1 pour oui, 0 pour non : ')
     return answer
 
 # handle csv creating file
 def handle_csv_create_file(answer):
     if not answer:
-        print('Le fichier a bien été créer')
+        print('\nLe fichier github_repos.csv a bien été créer')
     else:
         print('Erreur : ',answer)
