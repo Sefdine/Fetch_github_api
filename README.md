@@ -27,6 +27,6 @@ Le web scrapping peut s'avérer utile dans la mésure ou elle te laisse la main 
 Néanmoins, ce n'est pas tous les sites qui autorise cette méthode dans leur services. Il faut donc prendre en considération les législation et l'éthique des données et des sites web.
 
 Github n'autorise pas l'éxtraction des données dépuis sa plateforme
-<img src='me_ln_profile.jfif' alt="Image de github montrant sa restriction sur les données">
+<img src='Public/Images/github_web_licence.png' alt="Image de github montrant sa restriction sur les données">
 
 Lors de la collecte je me suis basé sur le nombre d'étoiles comme critères de sélection mais cela me récupère bien sur toutes les autres informations associés au dépots.
