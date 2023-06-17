@@ -36,7 +36,7 @@ Lors de la collecte je me suis basé sur le nombre d'étoiles comme critères de
 Savoir comment chacun avance est très important dans la mésure où ça aide à mieux intéragir et résoudre des problème en équipe.
 Comprendre les méthodes et suggestion de chacun pour filtrer la solution éfficiente.
 
-## Exécution
+## Pratique
 J'ai utilisé une structure assez répandu qui est le MVC (Model View Controller). Cette structure aide à mieux organiser le code et à partager les différentes taches de façon logique et coordonnée.
 
 ### Src
@@ -56,7 +56,31 @@ Ce fichier contient des constantes de configuration tels que l'url de recherche
 Contient des fonctions qui aide le controleur pour quelques taches
 
 ### Public
-Ce dossier contenant un sous dossier Images qui contient les images nécessaires
+Pour stocker les images
 
 ### main.py
 C'est le point d'entrée de notre projet. Il joue le role du routeur, Il se charge d'appeler le bon controleur quand il le faut.
+
+## Problème rencontré
+L'API REST de github limite les requettes jusqu'a 10 ou 30 (avec authentification) requetes par minutes avec un total de 1000 résultats.
+La réponse d'une requete contient 1000 lignes organisé par page. Une page peut avoir jusqu'a 100 lignes maximum. Il y'a donc 10 pages par requete.
+
+Pour récuperer plus de données j'ai procédé comme suit :
+ - Implémenter un système de pagination pour parcourir toutes les pages d'une requete;
+ - Patienter 1 min avant de lancer une requete
+ - 
+### Exécution
+Télecharger le projet en faisant "git clone https://github.com/Sefdine/Fetch_github_api.git", Cela vous donnera une copie du projet en local.
+Assuré vous d'avoir python installé dans votre machine. 
+Dans la console, taper la commande "python main.py" sous windows ou "python3 main.py" sous linux.
+Le programme vous demandera d'entré votre token pour vous authentifier à l'API REST de Github. 
+Après avoir soumis votre token, le programme chargera la première requete qui est :
+ - Récuperer dépots avec toutes les informations associé en triant par nombre de stars décendant. C'est à dire les premier dépots les mieux notés en nombre détoiles.
+Puis il vous demandera si vous voulez continuer à récuperer les données : 
+ - Si non le programme passera à l'étape suivante en conservant vos 1000 lignes.
+ - Si oui, il patientra 1 min et lancer une autre requete pour récuperer 1000 autres, vous aurez donc 2000 lignes (ainsi de suite)
+
+N'ésiter pas à ajouter des fonctionnalité, si vous voulez contribuer :
+Créer une autre branch, et faire vos modifications. Vous pouvez faire un pull-request pour soumettre vos modifications.
+
+Merci beaucoup !
