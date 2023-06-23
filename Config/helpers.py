@@ -59,3 +59,12 @@ def get_columns_name_type_dict_list(df):
         if df[column].apply(lambda x: isinstance(x, (dict, list))).any():
             columns_with_objects.append(column)
     return columns_with_objects
+
+# Has null values in columns
+def has_null_values_column(df):
+    has_null_columns = {}
+    for column in df.columns:
+        null_length = df.loc[df[column].isnull()].shape[0]
+        if null_length > 0:
+            has_null_columns[column] = null_length
+    return has_null_columns
