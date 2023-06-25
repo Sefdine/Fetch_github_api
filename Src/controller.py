@@ -38,104 +38,102 @@ def fetch_data():
     return final_data
 
 # Mirror_url null values
-def handle_mirror_url_null_values(df, has_null_columns):
-    if 'mirror_url' in has_null_columns:
-        print('La colonne mirroir represente une copie du dépot dans un autre emplacement.\nCette colonne ne nous sera pas utile pour ce projet.')
-        print('Voulez vous supprimer la supprimé ?')
-        delete_mirror_url_res = input('Taper 1 pour oui 0 pour non : ')
-        delete_mirror_url_res = handle_answer(delete_mirror_url_res)
-        if delete_mirror_url_res == '1':
-            df.drop('mirror_url', axis=1, inplace=True)
-            print('La suppression a reussi\n')
+def handle_mirror_url_null_values(df):
+    print('La colonne mirroir represente une copie du dépot dans un autre emplacement.\nCette colonne ne nous sera pas utile pour ce projet.')
+    print('Voulez vous supprimer la supprimé ?')
+    delete_mirror_url_res = input('Taper 1 pour oui 0 pour non : ')
+    delete_mirror_url_res = handle_answer(delete_mirror_url_res)
+    if delete_mirror_url_res == '1':
+        df.drop('mirror_url', axis=1, inplace=True)
+        print('La suppression a reussi\n')
     return df
 
 # Homepage null values
-def handle_homepage_null_values(df, has_null_columns):
-    if 'homepage' in has_null_columns:
-        print('La colonne homepage fait reference aux pages d\'accueil de contribution.\nCette colonne ne nous sera pas utile pour ce projet')
-        print('Voulez vous supprimer la supprimé ?')
-        delete_homepage_res = input('Taper 1 pour oui 0 pour non : ')
-        delete_homepage_res = handle_answer(delete_homepage_res)
-        if delete_homepage_res == '1':
-            df.drop('homepage', axis=1, inplace=True)
-            print('La suppression a reussi\n')
+def handle_homepage_null_values(df):
+    print('La colonne homepage fait reference aux pages d\'accueil de contribution.\nCette colonne ne nous sera pas utile pour ce projet')
+    print('Voulez vous supprimer la supprimé ?')
+    delete_homepage_res = input('Taper 1 pour oui 0 pour non : ')
+    delete_homepage_res = handle_answer(delete_homepage_res)
+    if delete_homepage_res == '1':
+        df.drop('homepage', axis=1, inplace=True)
+        print('La suppression a reussi\n')
     return df
 
 # License null values
-def handle_license_null_values(df, has_null_columns):
-    if 'license' in has_null_columns:
-        print('La colonne license décrit les licences utilisé dans un dépôt. Elle contient dans notre dataframe, un objet de type dictionnaire.\n')
-        print('Voici un example d\'un element dans la colonne license')
+def handle_license_null_values(df):
+    print('La colonne license décrit les licences utilisé dans un dépôt. Elle contient dans notre dataframe, un objet de type dictionnaire.\n')
+    print('Voici un example d\'un element dans la colonne license')
+    license_example = df.loc[df['license'].notnull(), 'license'][0]
+    if type(license_example) == str:
+        df['license'] = df['license'].apply(lambda x: eval(x) if pd.notnull(x) else None)
         license_example = df.loc[df['license'].notnull(), 'license'][0]
-        print(license_example)
-        print('\nOn vous propose de prendre uniquement les noms pour chaque licence\n')
-        print('Voulez vous garder la colonne license en entier ?')
-        licence_all_res = input('Taper 1 pour oui 0 pour non : ')
-        licence_all_res = handle_answer(licence_all_res)
-        if licence_all_res == '0':
-            print('Veuillez écrire les noms exactes des champs que vous voulez garder : \n')
-            license_columns_to_keep = []
-            while True:
-                print('Entrer q pour quitter')
-                column = input(f"Entrer le champ n°{len(license_columns_to_keep)+1} : ")
-                if column == 'q':
-                    if len(license_columns_to_keep) == 0:
-                        print('Vous n\'avez choisis aucun champ. La colonne license va être supprimée.\n')
-                        print('Êtes vous sur de vouloir supprimé la colonne license en entier ?')
-                        licence_all_delete_res = input('Taper 1 pour oui 0 pour non : ')
-                        licence_all_delete_res = handle_answer(licence_all_delete_res)
-                        if licence_all_delete_res == '1':
-                            # Drop license column
-                            df.drop('license', axis=1, inplace=True)
-                            print('La colonne license a bien été supprimée\n')
-                            break
-                    else:
-                        print('Voici les champs choisi : ',license_columns_to_keep)
+    print(license_example)
+    print('\nOn vous propose de prendre uniquement les noms pour chaque licence\n')
+    print('Voulez vous garder la colonne license en entier ?')
+    licence_all_res = input('Taper 1 pour oui 0 pour non : ')
+    licence_all_res = handle_answer(licence_all_res)
+    if licence_all_res == '0':
+        print('Veuillez écrire les noms exactes des champs que vous voulez garder : \n')
+        license_columns_to_keep = []
+        while True:
+            print('Entrer q pour quitter')
+            column = input(f"Entrer le champ n°{len(license_columns_to_keep)+1} : ")
+            if column == 'q':
+                if len(license_columns_to_keep) == 0:
+                    print('Vous n\'avez choisis aucun champ. La colonne license va être supprimée.\n')
+                    print('Êtes vous sur de vouloir supprimé la colonne license en entier ?')
+                    licence_all_delete_res = input('Taper 1 pour oui 0 pour non : ')
+                    licence_all_delete_res = handle_answer(licence_all_delete_res)
+                    if licence_all_delete_res == '1':
+                        # Drop license column
+                        df.drop('license', axis=1, inplace=True)
+                        print('La colonne license a bien été supprimée\n')
                         break
-                elif column in license_example.keys():
-                    if column not in license_columns_to_keep:
-                        license_columns_to_keep.append(column)
-                    else:
-                        print('Vous avez déjà choisi ce champs. Veuillez indiquer un autre\n.')
                 else:
-                    print('Le champs choisi n\'exist pas en tant que clé de la colonne license\n')
-            # Create new columns based on license
-            if len(license_columns_to_keep) > 0:
-                for name in license_columns_to_keep:
-                    df['license'+str.capitalize(name)] = df['license'].apply(lambda x: x[name] if pd.notnull(x) else None)
-                    print(f"La colonne {'license'+str.capitalize(name)} a bien été crée")
-                df.drop('license', axis=1, inplace=True)
+                    print('Voici les champs choisi : ',license_columns_to_keep)
+                    break
+            elif column in license_example.keys():
+                if column not in license_columns_to_keep:
+                    license_columns_to_keep.append(column)
+                else:
+                    print('Vous avez déjà choisi ce champs. Veuillez indiquer un autre\n.')
+            else:
+                print('Le champs choisi n\'exist pas en tant que clé de la colonne license\n')
+        # Create new columns based on license
+        if len(license_columns_to_keep) > 0:
+            for name in license_columns_to_keep:
+                df['license'+str.capitalize(name)] = df['license'].apply(lambda x: x[name] if pd.notnull(x) else None)
+                print(f"La colonne {'license'+str.capitalize(name)} a bien été crée")
+            df.drop('license', axis=1, inplace=True)
     return df
 
 # Language null values
-def handle_language_null_values(df, has_null_columns):
-    if 'language' in has_null_columns:
-        print('\nLa colonne language montre le language principale utilisé dans un dépôt')
-        print('Les lignes n\'ayant pas de language sont font reference à des dépôts d\'annuaire pour des livres ou autres chose')
-        print('Il est essentiel dans notre projet d\'avoir un language de programmation.\n')
-        print('\nDe ce fait, nous te conseillons de supprimer tous les lignes n\'ayant pas de language.')
-        print('\nVoulez vous supprimé les lignes qui n\'ont pas de language ?')
+def handle_language_null_values(df):
+    print('\nLa colonne language montre le language principale utilisé dans un dépôt')
+    print('Les lignes n\'ayant pas de language sont font reference à des dépôts d\'annuaire pour des livres ou autres chose')
+    print('Il est essentiel dans notre projet d\'avoir un language de programmation.\n')
+    print('\nDe ce fait, nous te conseillons de supprimer tous les lignes n\'ayant pas de language.')
+    print('\nVoulez vous supprimé les lignes qui n\'ont pas de language ?')
 
-        delete_language_res = input('Taper 1 pour oui 0 pour non : ')
-        delete_language_res = handle_answer(delete_language_res)
-        if delete_language_res == '1':
-            # Delete language null values
-            df.dropna(subset=['language'], inplace=True)
-            print('La suppression a bien été effectué\n')
+    delete_language_res = input('Taper 1 pour oui 0 pour non : ')
+    delete_language_res = handle_answer(delete_language_res)
+    if delete_language_res == '1':
+        # Delete language null values
+        df.dropna(subset=['language'], inplace=True)
+        print('La suppression a bien été effectué\n')
     return df
 
 # Language null values
-def handle_description_null_values(df, has_null_columns):
-    if 'description' in has_null_columns:
-        print('La colonne description montre une description du projet.\nCe n\'est pas pertinent de supprimer les lignes ne contenant pas de description car vous riquez de perdre d\'autres informations pertinentes')
-        print('Nous vous proposons de changer les valeurs nulles de cette colonne par "No description"')
-        print('\nVoulez vous changer les descriptions nulles par "No description" ?')
-        change_description_res = input('Taper 1 pour oui 0 pour non : ')
-        change_description_res = handle_answer(change_description_res)
-        if change_description_res == '1':
-            # Fill null descriptions
-            df['description'].fillna('No description', inplace=True)
-            print('Les descriptions nulles ont bien été changé\n')
+def handle_description_null_values(df):
+    print('La colonne description montre une description du projet.\nCe n\'est pas pertinent de supprimer les lignes ne contenant pas de description car vous riquez de perdre d\'autres informations pertinentes')
+    print('Nous vous proposons de changer les valeurs nulles de cette colonne par "No description"')
+    print('\nVoulez vous changer les descriptions nulles par "No description" ?')
+    change_description_res = input('Taper 1 pour oui 0 pour non : ')
+    change_description_res = handle_answer(change_description_res)
+    if change_description_res == '1':
+        # Fill null descriptions
+        df['description'].fillna('No description', inplace=True)
+        print('Les descriptions nulles ont bien été changé\n')
     return df  
 
 # Display percentages of null values in columns
@@ -155,26 +153,40 @@ def clean_data(data):
     # Drop unnamed column
     if 'Unnamed: 0' in df.columns:
         df.drop('Unnamed: 0', axis=1, inplace=True)
-
-    # Check column that contain object
-    object_columns = get_columns_name_type_dict_list(df)
     
-    # Display missing values 
+    # Display first missing values 
     has_null_columns = display_null_values_column(df)
     if len(has_null_columns) > 0:
         print('\n----------------- Traitement des valeurs nulles --------------\n')
         # ************ Mirror_url *************
-        df = handle_mirror_url_null_values(df, has_null_columns)
+        if 'mirror_url' in has_null_columns:
+            df = handle_mirror_url_null_values(df)
         # ************ Homepage *************
-        df = handle_homepage_null_values(df, has_null_columns)
+        if 'homepage' in has_null_columns:
+            df = handle_homepage_null_values(df)
         # ************ Licence *************
-        df = handle_license_null_values(df, has_null_columns)
+        if 'license' in has_null_columns:
+            df = handle_license_null_values(df)
         # ************ Language *************
-        df = handle_language_null_values(df, has_null_columns)
+        if 'language' in has_null_columns:
+            df = handle_language_null_values(df)
         # ************ Description *************
-        df = handle_description_null_values(df, has_null_columns)
+        if 'description' in has_null_columns:
+            df = handle_description_null_values(df)
 
+    # Display second missing values
     has_null_columns = display_null_values_column(df)
+    if len(has_null_columns) > 0:
+        print('\n----------------- Traitement des valeurs nulles --------------\n')
+        for x in has_null_columns:
+            print('Voulez vous de changer les valeurs nulle de',x,'par "No ',x,'" ?\n')
+            missing_res = input('Taper 1 pour oui 0 pour non : ')
+            missing_res = handle_answer(missing_res)
+            if missing_res == '1':
+                df[x].fillna(f"No {x}", inplace=True)
+                print('Le changement a bien été faite.\n')
+            else:
+                print('Entendu, vous avez toujours des valuers manquantes dans la colonne', x)
 
     # # Display columns with list or dict dtype
     # object_columns = get_columns_name_type_dict_list(df)
