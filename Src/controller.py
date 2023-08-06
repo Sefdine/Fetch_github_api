@@ -1,7 +1,7 @@
 # Import python packages
 import time 
 import pandas as pd
-import missingno as msno
+import emoji
 
 # Import model
 from Src.model import *
@@ -40,7 +40,7 @@ def fetch_data():
 # Mirror_url null values
 def handle_mirror_url_null_values(df):
     print('La colonne mirroir represente une copie du dépot dans un autre emplacement.\nCette colonne ne nous sera pas utile pour ce projet.')
-    print('Voulez vous supprimer la supprimé ?')
+    print('Voulez vous supprimer la colonne mirror_url ?')
     delete_mirror_url_res = input('Taper 1 pour oui 0 pour non : ')
     delete_mirror_url_res = handle_answer(delete_mirror_url_res)
     if delete_mirror_url_res == '1':
@@ -51,7 +51,7 @@ def handle_mirror_url_null_values(df):
 # Homepage null values
 def handle_homepage_null_values(df):
     print('La colonne homepage fait reference aux pages d\'accueil de contribution.\nCette colonne ne nous sera pas utile pour ce projet')
-    print('Voulez vous supprimer la supprimé ?')
+    print('Voulez vous supprimer la colonne homepage ?')
     delete_homepage_res = input('Taper 1 pour oui 0 pour non : ')
     delete_homepage_res = handle_answer(delete_homepage_res)
     if delete_homepage_res == '1':
@@ -140,10 +140,65 @@ def handle_description_null_values(df):
 def display_null_values_column(df):
     has_null_columns = has_null_values_column(df)
     if len(has_null_columns) > 0:
-        print('\nCes colonnes contient n% de valeurs nulles.')
+        print('\nCes colonnes contiennent n% de valeurs nulles.')
         for i in has_null_columns:
             print(i, '\t => ',round((has_null_columns[i] / len(df)*100), 2),'%')
     return has_null_columns
+
+# Handle final changes and create file 
+def handle_and_create_csv(df_final):
+    print(f"\nLa taille de vos données est de {df_final.shape[0]} lignes et de {df_final.shape[1]} colonnes")
+    print('Voulez vous sauvergarder vos données sous forme csv ?')
+    save_to_csv_res = input('Taper 1 pour oui 0 pour non : ')
+    save_to_csv_res = handle_answer(save_to_csv_res)
+
+    if save_to_csv_res == '0':
+        print('\nVos données ne seront pas sauvegarder. Etes vous sur ?')
+        final_res = input('Taper 1 pour oui 0 pour non : ')
+        final_res = handle_answer(final_res)
+        if final_res == '0':
+            # Save data to csv
+            csv_save_res = save_data_to_csv(df_final, 'github_repos.csv')
+            handle_csv_create_file(csv_save_res)
+        else:
+            print('\nTres bien, au revoir !')
+    else:
+        # Save data to csv
+        csv_save_res = save_data_to_csv(df_final, 'github_repos.csv')
+        handle_csv_create_file(csv_save_res)
+
+# Handle object types
+def handle_object_types(df):
+    object_columns = get_columns_name_type_dict_list(df)
+    if object_columns:
+        print('Ces colonnes de votre dataset contiennet des objets')
+        print(df[object_columns].head())
+
+        if 'owner' in object_columns:
+            print('Dans notre projet, le type du propriétaire du dépot pourrait nous etre utile.\n Le type est généralement (user, organization)')
+            print('Voulez vous recuperer le type dans la colonne "owner" : ') 
+            owner_type_res = input('Taper 1 pour oui 0 pour non : ')
+            owner_type_res = handle_answer(owner_type_res)
+            if owner_type_res == '1':
+                df['ownerType'] = df['owner'].apply(lambda x: x['type'] if pd.notnull(x) else None)
+                print('La colonne ownerType a bien été créée.\n')
+
+        print(object_columns)
+        print('Voulez vous supprimés ces colonnes contenant des objets ?')
+        # Ask to delete columns with object dict and list
+        dict_list_res = input('Taper 1 pour oui 0 pour non : ')
+        dict_list_res = handle_answer(dict_list_res)
+
+        if dict_list_res == '1':
+            df.drop(object_columns, axis=1, inplace=True)
+            print('La suppression a reussi')
+    return df
+
+# Delete all emojis that exists in the description field
+def handle_description_emoji(df):
+    df['description'] = df['description'].apply(lambda x: emoji.emojize(x))
+    df['description'] = df['description'].apply(lambda x: emoji.replace_emoji(x, '') if emoji.emoji_count(x) > 0 else x)
+    df['description'] = df['description'].apply(lambda x: None if x == '' else x)
 
 # Clean and save data
 def clean_data(data):
@@ -179,7 +234,7 @@ def clean_data(data):
     if len(has_null_columns) > 0:
         print('\n----------------- Traitement des valeurs nulles --------------\n')
         for x in has_null_columns:
-            print('Voulez vous de changer les valeurs nulle de',x,'par "No ',x,'" ?\n')
+            print('Voulez vous changé les valeurs nulle de',x,'par "No ',x,'" ?\n')
             missing_res = input('Taper 1 pour oui 0 pour non : ')
             missing_res = handle_answer(missing_res)
             if missing_res == '1':
@@ -188,82 +243,56 @@ def clean_data(data):
             else:
                 print('Entendu, vous avez toujours des valuers manquantes dans la colonne', x)
 
-    # # Display columns with list or dict dtype
-    # object_columns = get_columns_name_type_dict_list(df)
-    # if object_columns:
-    #     print('Ces colonnes de votre dataset contiennet des objets')
-    #     print(df[object_columns].head())
-    #     print('Voulez vous les supprimés ?')
-    #     # Ask to delete columns with object dict and list
-    #     dict_list_res = input('Taper 1 pour oui 0 pour non : ')
-    #     dict_list_res = handle_answer(dict_list_res)
-
-    #     if dict_list_res == '1':
-    #         df.drop(object_columns, axis=1, inplace=True)
+    # Display columns with list or dict dtype
+    df = handle_object_types(df)
     
-    # # Display available columns
-    # print('\nVoici les colonnes de vos données')
-    # time.sleep(1)
-    # print(df.columns)
+    # Display available columns
+    print('\nVoici les colonnes de vos données')
+    time.sleep(1)
+    print(df.columns)
 
-    # # Ask to keep with all columns
-    # print('\nSouhaitez vous conserver toutes les colonnes ?')
-    # keep_columns_re = input('Taper 1 pour oui 0 pour non : ')
-    # keep_columns_re = handle_answer(keep_columns_re)
-    # if keep_columns_re == '0':
-    #     # Demand of the needed columns
-    #     print('\nVeuillez entrez les noms exacts des colonnes que vous voulez conserver')
-    #     conserved_columns = []
-    #     while True:
-    #         conserved_column = input(f"\nTaper q pour quitter\nEntrez le nom exact de la colonne N° {len(conserved_columns)+1}: ")
-    #         if conserved_column in df.columns:
-    #             conserved_columns.append(conserved_column)
-    #         elif conserved_column == 'q':
-    #             if len(conserved_columns) > 0:
-    #                 print('\nVoici les colonnes choisis :')
-    #                 print(conserved_columns)
-    #                 time.sleep(1)
-    #             else:
-    #                 print('\nVous n\'avez choisis aucune colonne.\nVos données contiennent donc toutes les colonnes initiales')
-    #             break
-    #         else:
-    #             print('\nErreur: la colonne choisis n\'existe pas')
-    # else:
-    #     conserved_columns = df.columns
-    # # Create final dataframe
-    # df_final = df[conserved_columns]
+    # Ask to keep with all columns
+    print('\nSouhaitez vous conserver toutes les colonnes ?')
+    keep_columns_re = input('Taper 1 pour oui 0 pour non : ')
+    keep_columns_re = handle_answer(keep_columns_re)
+    if keep_columns_re == '0':
+        # Demand of the needed columns
+        print('\nVeuillez entrez les noms exacts des colonnes que vous voulez conserver')
+        conserved_columns = []
+        while True:
+            conserved_column = input(f"\nTaper q pour quitter\nEntrez le nom exact de la colonne N° {len(conserved_columns)+1}: ")
+            if conserved_column in df.columns:
+                conserved_columns.append(conserved_column)
+            elif conserved_column == 'q':
+                if len(conserved_columns) > 0:
+                    print('\nVoici les colonnes choisis :')
+                    print(conserved_columns)
+                    time.sleep(1)
+                else:
+                    print('\nVous n\'avez choisis aucune colonne.\nVos données contiennent donc toutes les colonnes initiales')
+                break
+            else:
+                print('\nErreur: la colonne choisis n\'existe pas')
+    else:
+        conserved_columns = df.columns
+    # Create final dataframe
+    df_final = df[conserved_columns]
 
-    # # Drop duplicates
-    # object_columns = list(set(object_columns).intersection(df_final.columns))
-    # duplicated_rows = df_final[df_final.duplicated(subset=df_final.columns.difference(object_columns))].shape[0]
+    # Drop duplicates
+    object_columns = get_columns_name_type_dict_list(df_final)
+    object_columns = list(set(object_columns).intersection(df_final.columns))
+    duplicated_rows = df_final[df_final.duplicated(subset=df_final.columns.difference(object_columns))].shape[0]
 
-    # if duplicated_rows > 0:
-    #     print(f"\nVous avez {duplicated_rows} lignes dupliquées. \nVoulez vous les supprimées ?")
-    #     duplicated_res = input('Taper 1 pour Oui, 0 pour non : ')
-    #     duplicated_res = handle_answer(duplicated_res)
+    if duplicated_rows > 0:
+        print(f"\nVous avez {duplicated_rows} lignes dupliquées. \nVoulez vous les supprimées ?")
+        duplicated_res = input('Taper 1 pour Oui, 0 pour non : ')
+        duplicated_res = handle_answer(duplicated_res)
         
-    #     if duplicated_res == '1':
-    #         df_final.drop_duplicates(subset=df_final.columns.difference(object_columns), inplace=True)
-    #         print('\nLes données dupliquées ont été suprimés')
-    #         print('La taille de vos données sont de ',df_final.shape[0])
-    #         time.sleep(1)
+        if duplicated_res == '1':
+            df_final.drop_duplicates(subset=df_final.columns.difference(object_columns), inplace=True)
+            print('\nLes données dupliquées ont été suprimés')
+            print('La taille de vos données sont de ',df_final.shape[0])
+            time.sleep(1)
     
-    # print(f"\nLa taille de vos données est de {df_final.shape[0]} lignes et de {df_final.shape[1]} colonnes")
-    # print('Voulez vous sauvergarder vos données sous forme csv ?')
-    # save_to_csv_res = input('Taper 1 pour oui 0 pour non : ')
-    # save_to_csv_res = handle_answer(save_to_csv_res)
-
-    # if save_to_csv_res == '0':
-    #     print('\nVos données ne seront pas sauvegarder. Etes vous sur ?')
-    #     final_res = input('Taper 1 pour oui 0 pour non : ')
-    #     final_res = handle_answer(final_res)
-    #     if final_res == '0':
-    #         # Save data to csv
-    #         csv_save_res = save_data_to_csv(df_final, 'github_repos.csv')
-    #         handle_csv_create_file(csv_save_res)
-    #     else:
-    #         print('\nTres bien, au revoir !')
-    # else:
-    #     # Save data to csv
-    #     csv_save_res = save_data_to_csv(df_final, 'github_repos.csv')
-    #     handle_csv_create_file(csv_save_res)
+    # Save data to csv
+    handle_and_create_csv(df_final)
